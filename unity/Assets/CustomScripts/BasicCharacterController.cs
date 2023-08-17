@@ -60,10 +60,16 @@ namespace CustomScripts
                 _yVelocity = CustomPhysicsConfig.Instance.Gravity * Time.fixedDeltaTime;
             }
 
-            var xSpeed = _xDir * movementSpeed * Time.fixedDeltaTime;
-            var zSpeed = _zDir * movementSpeed * Time.fixedDeltaTime;
+            var inputDir = new Vector2(_xDir, _zDir);
+            if (inputDir.magnitude > 1.0f)
+            {
+                inputDir.Normalize();
+            }
 
-            _speed = movementSpeed;// _speed; //Vector2.ClampMagnitude(new Vector2(xSpeed, zSpeed),1f).magnitude;
+            var xSpeed = inputDir[0] * movementSpeed * Time.fixedDeltaTime;
+            var zSpeed = inputDir[1] * movementSpeed * Time.fixedDeltaTime;
+
+            _speed = new Vector2(xSpeed,zSpeed).magnitude;// _speed; //Vector2.ClampMagnitude(new Vector2(xSpeed, zSpeed),1f).magnitude;
             //raycast 
             var ray = new Ray(controller.transform.position+Vector3.up*stepHeight,transform.forward);
             var controllerRadius = controller.radius;
@@ -84,7 +90,7 @@ namespace CustomScripts
             }
             //flagsLastFrame = controller.Move(new Vector3(xSpeed, _yVelocity, zSpeed));
             var displacement = new Vector3(xSpeed, count>0? 0f:_yVelocity, zSpeed);
-            displacement = Vector3.ClampMagnitude(displacement,_speed);
+            //displacement = Vector3.ClampMagnitude(displacement,_speed);
             //var displacement = count > 0 ? path * _speed : new Vector3(xSpeed, _yVelocity, zSpeed);
             flagsLastFrame = controller.Move(displacement);
             transform.LookAt(transform.position + new Vector3(_xDir,0,_zDir));
