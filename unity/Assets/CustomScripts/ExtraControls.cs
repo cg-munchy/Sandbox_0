@@ -45,7 +45,6 @@ namespace CustomScripts
         {
             
             animator.SetTrigger(trigger);
-            Debug.Log("trigerring");
             isBusy.Value = true;
             yield return null;
             var time = animator.GetCurrentAnimatorStateInfo(0).length;
