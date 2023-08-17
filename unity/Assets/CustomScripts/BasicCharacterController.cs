@@ -22,9 +22,12 @@ namespace CustomScripts
         private float _yDir;
         private float _yVelocity;
         private bool _hasAnimator;
+        private bool _isValid = true;
         [FormerlySerializedAs("flags")] public CollisionFlags flagsLastFrame;
         private RaycastHit[] _results = new RaycastHit[3];
         [ShowInInspector][ReadOnly]private float _speed;
+
+        public void SetValid(bool value) => _isValid = !value;
 
 
         private void Awake()
@@ -46,6 +49,10 @@ namespace CustomScripts
 
         private void FixedUpdate()
         {
+            if (!_isValid)
+            {
+                return;
+            }
             if ((flagsLastFrame & CollisionFlags.Below) != 0)
                 _yVelocity = 0f;
             else
@@ -56,7 +63,7 @@ namespace CustomScripts
             var xSpeed = _xDir * movementSpeed * Time.fixedDeltaTime;
             var zSpeed = _zDir * movementSpeed * Time.fixedDeltaTime;
 
-            _speed = (new Vector2(xSpeed, zSpeed).magnitude) ;
+            _speed = movementSpeed;// _speed; //Vector2.ClampMagnitude(new Vector2(xSpeed, zSpeed),1f).magnitude;
             //raycast 
             var ray = new Ray(controller.transform.position+Vector3.up*stepHeight,transform.forward);
             var controllerRadius = controller.radius;
@@ -77,6 +84,7 @@ namespace CustomScripts
             }
             //flagsLastFrame = controller.Move(new Vector3(xSpeed, _yVelocity, zSpeed));
             var displacement = new Vector3(xSpeed, count>0? 0f:_yVelocity, zSpeed);
+            displacement = Vector3.ClampMagnitude(displacement,_speed);
             //var displacement = count > 0 ? path * _speed : new Vector3(xSpeed, _yVelocity, zSpeed);
             flagsLastFrame = controller.Move(displacement);
             transform.LookAt(transform.position + new Vector3(_xDir,0,_zDir));
